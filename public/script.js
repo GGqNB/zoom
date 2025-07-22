@@ -1,4 +1,4 @@
-const socket = io("/");
+const socket = io("/nodejs/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
@@ -28,7 +28,7 @@ function getRandomInt(min, max) {
 }
 
 var peer = new Peer({
-  host: '62.113.36.75:',
+  host: 'intercom-rental.ru/nodejs/',
   port: 3030,
   path: '/peerjs',
   config: {
