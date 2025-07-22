@@ -36,4 +36,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT || 3030);
+server.listen(3030, '0.0.0.0', () => {
+      console.log('Сервер запущен на порту 3030 на всех интерфейсах');
+    });
+    
