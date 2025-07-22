@@ -28,7 +28,7 @@ function getRandomInt(min, max) {
 }
 
 var peer = new Peer({
-  host: '127.0.0.1',
+  host: '62.113.36.75:',
   port: 3030,
   path: '/peerjs',
   config: {
