@@ -1,4 +1,6 @@
-const socket = io("/nodejs/");
+const socket = io("/nodejs", {
+        path: "/socket.io" 
+      });
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
