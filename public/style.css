@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
 :root {
   --main-darklg: #1d2635;
@@ -162,6 +162,7 @@ video {
   display: none;
 }
 
+
 .header__back {
   display: none;
   position: absolute;
@@ -188,4 +189,65 @@ video {
   #showChat {
     display: flex;
   }
+} */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
 }
+
+.header {
+    height: 10vh;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 1em;
+}
+
+.main {
+    display: flex;
+    height: 90vh;
+}
+
+.main__left {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.videos__group {
+    flex-grow: 1;
+    padding: 0.5em;
+}
+
+#video-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* align-items: flex-start; */
+    height: 100%;
+}
+
+video {
+    border-radius: 1rem;
+    margin: 0.5em;
+    object-fit: cover;
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+}
+
+#video-grid video {
+    width: calc(46%); /* По умолчанию 50% ширины для десктопа */
+    height: auto;
+}
+
+/* Мобильные устройства (ширина экрана до 768px,  часто используемая точка переключения) */
+@media (max-width: 468px) {
+    #video-grid video {
+        width: calc(100% - 1em); /*  100% ширины для мобильных устройств */
+    }
+}
+
+

@@ -1,23 +1,10 @@
 const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
-const showChat = document.querySelector("#showChat");
-const backBtn = document.querySelector(".header__back");
+
 myVideo.muted = true;
 
-backBtn.addEventListener("click", () => {
-  document.querySelector(".main__left").style.display = "flex";
-  document.querySelector(".main__left").style.flex = "1";
-  document.querySelector(".main__right").style.display = "none";
-  document.querySelector(".header__back").style.display = "none";
-});
 
-showChat.addEventListener("click", () => {
-  document.querySelector(".main__right").style.display = "flex";
-  document.querySelector(".main__right").style.flex = "1";
-  document.querySelector(".main__left").style.display = "none";
-  document.querySelector(".header__back").style.display = "block";
-});
 
 const user = getRandomInt(1,100);
 
@@ -29,7 +16,7 @@ function getRandomInt(min, max) {
 
 var peer = new Peer({
   host: 'intercom-rental.ru',
-  port: 3030,
+  port: 443,
   path: '/peerjs',
   config: {
     'iceServers': [
@@ -105,24 +92,47 @@ const addVideoStream = (video, stream) => {
 };
 
 let text = document.querySelector("#chat_message");
-let send = document.getElementById("send");
 let messages = document.querySelector(".messages");
-
-send.addEventListener("click", (e) => {
-  if (text.value.length !== 0) {
-    socket.emit("message", text.value);
-    text.value = "";
-  }
+socket.on("createMessage", (message, userName) => {
+  messages.innerHTML =
+    messages.innerHTML +
+    `<div class="message">
+        <b><i class="far fa-user-circle"></i> <span> ${userName === user ? "me" : userName
+    }</span> </b>
+        <span>${message}</span>
+    </div>`;
 });
+// const showChat = document.querySelector("#showChat");
+// const backBtn = document.querySelector(".header__back");
+// backBtn.addEventListener("click", () => {
+//   document.querySelector(".main__left").style.display = "flex";
+//   document.querySelector(".main__left").style.flex = "1";
+//   document.querySelector(".main__right").style.display = "none";
+//   document.querySelector(".header__back").style.display = "none";
+// });
 
-text.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && text.value.length !== 0) {
-    socket.emit("message", text.value);
-    text.value = "";
-  }
-});
+// showChat.addEventListener("click", () => {
+//   document.querySelector(".main__right").style.display = "flex";
+//   document.querySelector(".main__right").style.flex = "1";
+//   document.querySelector(".main__left").style.display = "none";
+//   document.querySelector(".header__back").style.display = "block";
+// });
+// let send = document.getElementById("send");
+// send.addEventListener("click", (e) => {
+//   if (text.value.length !== 0) {
+//     socket.emit("message", text.value);
+//     text.value = "";
+//   }
+// });
 
-const inviteButton = document.querySelector("#inviteButton");
+// text.addEventListener("keydown", (e) => {
+//   if (e.key === "Enter" && text.value.length !== 0) {
+//     socket.emit("message", text.value);
+//     text.value = "";
+//   }
+// });
+
+// const inviteButton = document.querySelector("#inviteButton");
 // const muteButton = document.querySelector("#muteButton");
 // const stopVideo = document.querySelector("#stopVideo");
 // muteButton.addEventListener("click", () => {
@@ -162,12 +172,3 @@ const inviteButton = document.querySelector("#inviteButton");
 //   );
 // });
 
-socket.on("createMessage", (message, userName) => {
-  messages.innerHTML =
-    messages.innerHTML +
-    `<div class="message">
-        <b><i class="far fa-user-circle"></i> <span> ${userName === user ? "me" : userName
-    }</span> </b>
-        <span>${message}</span>
-    </div>`;
-});
