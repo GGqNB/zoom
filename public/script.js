@@ -15,6 +15,7 @@ function getRandomInt(min, max) {
 }
 
 var peer = new Peer({
+  // host: '127.0.0.1',
   host: 'intercom-rental.ru',
   port: 443,
   path: '/peerjs',
@@ -47,36 +48,49 @@ var peer = new Peer({
 
 let myVideoStream;
 
-navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: true,
-})
-    .then((stream) => {
-        myVideoStream = stream; // Assign the stream to the variable
+// Initialize PeerJS and Socket.IO independently of media stream
+peer.on("open", (id) => {
+    console.log('my id is' + id);
+    socket.emit("join-room", ROOM_ID, id, user);
+});
 
-        addVideoStream(myVideo, stream); // Call the function to display the video
+socket.on("user-connected", (userId) => {
+    if (myVideoStream) { // Ensure myVideoStream is available
+        connectToNewUser(userId, myVideoStream);
+    } else {
+        console.warn("Cannot connect to new user.  Media stream is not available.");
+        // Optionally, display a message to the user.
+    }
+});
 
-        peer.on("call", (call) => {
-            console.log('someone call me');
-            call.answer(stream);
-            const video = document.createElement("video");
-            call.on("stream", (userVideoStream) => {
-                addVideoStream(video, userVideoStream);
-            });
-        });
-
-        socket.on("user-connected", (userId) => {
-            connectToNewUser(userId, stream);
-        });
-    })
-    .catch((err) => {
-        console.error("Error accessing media devices:", err);
-        alert("Unable to access camera and microphone. Please check permissions and try again.");
-        // Optionally, display a placeholder video or message in the videoGrid
-        const errorMessage = document.createElement("p");
-        errorMessage.textContent = "Camera and microphone access denied or unavailable.";
-        videoGrid.appendChild(errorMessage);
+peer.on("call", (call) => {
+    console.log('someone call me');
+    call.answer(myVideoStream); //Use myVideoStream safely
+    const video = document.createElement("video");
+    call.on("stream", (userVideoStream) => {
+        addVideoStream(video, userVideoStream);
     });
+});
+
+function startMedia() {
+  navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+  })
+      .then((stream) => {
+          myVideoStream = stream; // Assign the stream to the variable
+
+          addVideoStream(myVideo, stream); // Call the function to display the video
+      })
+      .catch((err) => {
+          console.error("Error accessing media devices:", err);
+          alert("Unable to access camera and microphone. Please check permissions and try again.");
+          // Optionally, display a placeholder video or message in the videoGrid
+          const errorMessage = document.createElement("p");
+          errorMessage.textContent = "Camera and microphone access denied or unavailable.";
+          videoGrid.appendChild(errorMessage);
+      });
+}
 
 const connectToNewUser = (userId, stream) => {
     console.log('I call someone' + userId);
@@ -87,11 +101,6 @@ const connectToNewUser = (userId, stream) => {
     });
 };
 
-peer.on("open", (id) => {
-    console.log('my id is' + id);
-    socket.emit("join-room", ROOM_ID, id, user);
-});
-
 const addVideoStream = (video, stream) => {
     video.srcObject = stream;
     video.addEventListener("loadedmetadata", () => {
@@ -100,18 +109,25 @@ const addVideoStream = (video, stream) => {
     });
 };
 
-
 let text = document.querySelector("#chat_message");
 let messages = document.querySelector(".messages");
 socket.on("createMessage", (message, userName) => {
-  messages.innerHTML =
-    messages.innerHTML +
-    `<div class="message">
-        <b><i class="far fa-user-circle"></i> <span> ${userName === user ? "me" : userName
-    }</span> </b>
-        <span>${message}</span>
-    </div>`;
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+
+    const userSpan = document.createElement('span');
+    userSpan.innerHTML = `<b><i class="far fa-user-circle"></i> <span> ${userName === user ? "me" : userName}</span> </b>`;
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message;
+
+    messageDiv.appendChild(userSpan);
+    messageDiv.appendChild(messageSpan);
+
+    messages.appendChild(messageDiv);
 });
+
+startMedia();
 // const showChat = document.querySelector("#showChat");
 // const backBtn = document.querySelector(".header__back");
 // backBtn.addEventListener("click", () => {
