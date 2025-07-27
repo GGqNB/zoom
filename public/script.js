@@ -46,50 +46,60 @@ var peer = new Peer({
 });
 
 let myVideoStream;
-navigator.mediaDevices
-  .getUserMedia({
+
+navigator.mediaDevices.getUserMedia({
     audio: true,
     video: true,
-  })
-  .then((stream) => {
-    myVideoStream = stream;
-    addVideoStream(myVideo, stream);
+})
+    .then((stream) => {
+        myVideoStream = stream; // Assign the stream to the variable
 
-    peer.on("call", (call) => {
-      console.log('someone call me');
-      call.answer(stream);
-      const video = document.createElement("video");
-      call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-      });
-    });
+        addVideoStream(myVideo, stream); // Call the function to display the video
 
-    socket.on("user-connected", (userId) => {
-      connectToNewUser(userId, stream);
+        peer.on("call", (call) => {
+            console.log('someone call me');
+            call.answer(stream);
+            const video = document.createElement("video");
+            call.on("stream", (userVideoStream) => {
+                addVideoStream(video, userVideoStream);
+            });
+        });
+
+        socket.on("user-connected", (userId) => {
+            connectToNewUser(userId, stream);
+        });
+    })
+    .catch((err) => {
+        console.error("Error accessing media devices:", err);
+        alert("Unable to access camera and microphone. Please check permissions and try again.");
+        // Optionally, display a placeholder video or message in the videoGrid
+        const errorMessage = document.createElement("p");
+        errorMessage.textContent = "Camera and microphone access denied or unavailable.";
+        videoGrid.appendChild(errorMessage);
     });
-  });
 
 const connectToNewUser = (userId, stream) => {
-  console.log('I call someone' + userId);
-  const call = peer.call(userId, stream);
-  const video = document.createElement("video");
-  call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream);
-  });
+    console.log('I call someone' + userId);
+    const call = peer.call(userId, stream);
+    const video = document.createElement("video");
+    call.on("stream", (userVideoStream) => {
+        addVideoStream(video, userVideoStream);
+    });
 };
 
 peer.on("open", (id) => {
-  console.log('my id is' + id);
-  socket.emit("join-room", ROOM_ID, id, user);
+    console.log('my id is' + id);
+    socket.emit("join-room", ROOM_ID, id, user);
 });
 
 const addVideoStream = (video, stream) => {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
-    video.play();
-    videoGrid.append(video);
-  });
+    video.srcObject = stream;
+    video.addEventListener("loadedmetadata", () => {
+        video.play();
+        videoGrid.append(video);
+    });
 };
+
 
 let text = document.querySelector("#chat_message");
 let messages = document.querySelector(".messages");
